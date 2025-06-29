@@ -46,7 +46,7 @@ class SpecAnnGenerator:
                 label = anno.to_samples(times)
                 print(label)
 
-def _get_filenames_from_path(path, extension= ""):
+def _get_filenames_from_path(path, extension=""):
     filenames = []
     for item in os.listdir(path):
         if item.endswith(extension):
