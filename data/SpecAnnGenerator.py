@@ -37,6 +37,7 @@ class SpecAnnGenerator:
             annotations_filename = annotations_filenames[i]
             print(audio_filename)
             print(annotations_filename)
+
             y, sr = librosa.load(audio_filename, sr=self.sr)
             data = self.__preprocess_data(y)
             times = librosa.frames_to_time(
@@ -45,10 +46,15 @@ class SpecAnnGenerator:
                 hop_length=self.hop_length,
             )
 
+            labels_shape = (self.strings_num, len(times))
+            labels = np.full(labels_shape, -1)
+
             annotations_file = jams.load(annotations_filename)
-            for anno in annotations_file.annotations['note_midi']:
+            for string_index, anno in enumerate(annotations_file.annotations['note_midi']):
                 label = anno.to_samples(times)
-                print(len(label))
+                label_flat = np.array([l[0] if len(l) > 0 else -1 for l in label])
+                labels[string_index, :] = label_flat
+            print(labels)
 
     def __preprocess_data(self, data):
         # apply some preprocess to data
