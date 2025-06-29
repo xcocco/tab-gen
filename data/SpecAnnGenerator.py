@@ -3,14 +3,25 @@ import os
 import librosa
 import librosa.feature
 import jams
+import numpy as np
 
 class SpecAnnGenerator:
-    def __init__(self, audio_path, annotations_path):
+    def __init__(self,
+                 audio_path,
+                 annotations_path,
+                 n_fft=2048,
+                 hop_length=512,
+                 sr=22050
+        ):
         self.audio_path = audio_path
         self.annotations_path = annotations_path
 
         self.strings_num = 6
         self.frets_num = 21
+
+        self.n_fft = n_fft
+        self.hop_length = hop_length
+        self.sr = sr
 
     def generate(self):
         audio_filenames = _get_filenames_from_path(self.audio_path, ".wav")
@@ -26,25 +37,30 @@ class SpecAnnGenerator:
             annotations_filename = annotations_filenames[i]
             print(audio_filename)
             print(annotations_filename)
-            y, sr = librosa.load(audio_filename)
-            y = _preprocess_data(y)
-            spectrogram = librosa.feature.melspectrogram(
-                y=y,
-                sr=sr,
-                n_fft=2048,
-                hop_length=512
-            )
-            spectrogram = spectrogram.T
+            y, sr = librosa.load(audio_filename, sr=self.sr)
+            data = self.__preprocess_data(y)
             times = librosa.frames_to_time(
-                range(len(spectrogram)),
+                range(len(data)),
                 sr=sr,
-                hop_length=512
+                hop_length=self.hop_length,
             )
 
             annotations_file = jams.load(annotations_filename)
             for anno in annotations_file.annotations['note_midi']:
                 label = anno.to_samples(times)
-                print(label)
+                print(len(label))
+
+    def __preprocess_data(self, data):
+        # apply some preprocess to data
+        data = librosa.util.normalize(data)
+        data = librosa.feature.melspectrogram(
+            y=data,
+            sr=self.sr,
+            n_fft=self.n_fft,
+            hop_length=self.hop_length,
+        )
+        # swap axes
+        return data.T
 
 def _get_filenames_from_path(path, extension=""):
     filenames = []
@@ -55,11 +71,6 @@ def _get_filenames_from_path(path, extension=""):
                 filenames.append(item_path)
 
     return filenames
-
-def _preprocess_data(data):
-    # apply some preprocess to data
-    data = librosa.util.normalize(data)
-    return data
 
 def main():
     generator = SpecAnnGenerator("GuitarSet/audio/audio_mic", "GuitarSet/annotation")
