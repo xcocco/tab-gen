@@ -12,29 +12,9 @@ class SpecAnnGenerator:
         self.strings_num = 6
         self.frets_num = 21
 
-    def __get_audio_filenames(self):
-        audio_filenames = []
-        for item in os.listdir(self.audio_path):
-            if item.endswith(".wav"):
-                item_path = os.path.join(self.audio_path, item)
-                if os.path.isfile(item_path):
-                    audio_filenames.append(item_path)
-
-        return audio_filenames
-
-    def __get_annotations_filenames(self):
-        annotations_filenames = []
-        for item in os.listdir(self.annotations_path):
-            if item.endswith(".jams"):
-                item_path = os.path.join(self.annotations_path, item)
-                if os.path.isfile(item_path):
-                    annotations_filenames.append(item_path)
-
-        return annotations_filenames
-
     def generate(self):
-        audio_filenames = self.__get_audio_filenames()
-        annotations_filenames = self.__get_annotations_filenames()
+        audio_filenames = _get_filenames_from_path(self.audio_path, ".wav")
+        annotations_filenames = _get_filenames_from_path(self.annotations_path, ".jams")
 
         if len(audio_filenames) != len(annotations_filenames):
             print("Audio files and annotations files quantity mismatch, aborted")
@@ -45,8 +25,9 @@ class SpecAnnGenerator:
             audio_filename = audio_filenames[i]
             annotations_filename = annotations_filenames[i]
             print(audio_filename)
+            print(annotations_filename)
             y, sr = librosa.load(audio_filename)
-            y = SpecAnnGenerator.__preprocess_data(y)
+            y = _preprocess_data(y)
             spectrogram = librosa.feature.melspectrogram(
                 y=y,
                 sr=sr,
@@ -65,11 +46,20 @@ class SpecAnnGenerator:
                 label = anno.to_samples(times)
                 print(label)
 
-    @staticmethod
-    def __preprocess_data(data):
-        # apply some preprocess to data
-        data = librosa.util.normalize(data)
-        return data
+def _get_filenames_from_path(path, extension= ""):
+    filenames = []
+    for item in os.listdir(path):
+        if item.endswith(extension):
+            item_path = os.path.join(path, item)
+            if os.path.isfile(item_path):
+                filenames.append(item_path)
+
+    return filenames
+
+def _preprocess_data(data):
+    # apply some preprocess to data
+    data = librosa.util.normalize(data)
+    return data
 
 def main():
     generator = SpecAnnGenerator("GuitarSet/audio/audio_mic", "GuitarSet/annotation")
