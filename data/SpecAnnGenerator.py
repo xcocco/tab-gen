@@ -95,7 +95,7 @@ def _get_filenames_from_path(path, extension=""):
             item_path = os.path.join(path, item)
             if os.path.isfile(item_path):
                 filenames.append(item_path)
-
+    filenames.sort()
     return filenames
 
 def main():
