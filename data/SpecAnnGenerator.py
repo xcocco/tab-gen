@@ -16,8 +16,13 @@ class SpecAnnGenerator:
         self.audio_path = audio_path
         self.annotations_path = annotations_path
 
+        # standard tuning
+        self.strings_pitches = [40, 45, 50, 55, 59, 64]
         self.strings_num = 6
-        self.frets_num = 21
+        self.frets_num = 19
+
+        # open string + not played + 19 frets
+        self.num_classes = self.frets_num + 2
 
         self.n_fft = n_fft
         self.hop_length = hop_length
@@ -47,14 +52,22 @@ class SpecAnnGenerator:
             )
 
             labels_shape = (self.strings_num, len(times))
-            labels = np.full(labels_shape, -1)
+            labels = np.empty(labels_shape, dtype=int)
 
             annotations_file = jams.load(annotations_filename)
             for string_index, anno in enumerate(annotations_file.annotations['note_midi']):
-                label = anno.to_samples(times)
-                label_flat = np.array([l[0] if len(l) > 0 else -1 for l in label])
-                labels[string_index, :] = label_flat
-            print(labels)
+                notes_per_string = anno.to_samples(times)
+                notes_per_string_flat = np.empty((len(notes_per_string)), dtype=int)
+                for j in range(len(notes_per_string)):
+                    note = notes_per_string[j]
+                    if not note:
+                        notes_per_string_flat[j] = -1
+                    else:
+                        notes_per_string_flat[j] = int(round(note[0]) - self.strings_pitches[string_index])
+                labels[string_index, :] = notes_per_string_flat
+
+            # swap axes to get 6 columns (one column per string) and as many rows as frames in the audio
+            labels = labels.T
 
     def __preprocess_data(self, data):
         # apply some preprocess to data
