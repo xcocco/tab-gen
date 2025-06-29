@@ -68,6 +68,13 @@ class SpecAnnGenerator:
 
             # swap axes to get 6 columns (one column per string) and as many rows as frames in the audio
             labels = labels.T
+            output_path = 'spec_ann'
+            audio_filename = os.path.basename(audio_filename)
+            np.savez(
+                os.path.join(output_path, str(audio_filename).replace('.wav', '.npz')),
+                spectrogram=data,
+                labels=labels,
+            )
 
     def __preprocess_data(self, data):
         # apply some preprocess to data
