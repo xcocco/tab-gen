@@ -40,12 +40,13 @@ class SpecAnnGenerator:
             print("Audio files and annotations files quantity mismatch, aborted")
             return
 
-        # if we are here audio filenames and annotations filenames could be used interchangeably
+        # if we are here audio filenames and annotations filenames length could be used interchangeably
         for i in range(len(audio_filenames)):
             audio_filename = audio_filenames[i]
             annotations_filename = annotations_filenames[i]
             print(audio_filename)
             y, sr = librosa.load(audio_filename)
+            y = SpecAnnGenerator.__preprocess_data(y)
             spectrogram = librosa.feature.melspectrogram(
                 y=y,
                 sr=sr,
@@ -64,7 +65,11 @@ class SpecAnnGenerator:
                 label = anno.to_samples(times)
                 print(label)
 
-
+    @staticmethod
+    def __preprocess_data(data):
+        # apply some preprocess to data
+        data = librosa.util.normalize(data)
+        return data
 
 def main():
     generator = SpecAnnGenerator("GuitarSet/audio/audio_mic", "GuitarSet/annotation")
