@@ -12,22 +12,29 @@ class SpecAnnGenerator:
         self.strings_num = 6
         self.frets_num = 21
 
-    def generate(self):
+    def __get_audio_filenames(self):
         audio_filenames = []
         for item in os.listdir(self.audio_path):
-            if not item.endswith(".wav"):
-                continue
-            item_path = os.path.join(self.audio_path, item)
-            if os.path.isfile(item_path):
-                audio_filenames.append(item_path)
+            if item.endswith(".wav"):
+                item_path = os.path.join(self.audio_path, item)
+                if os.path.isfile(item_path):
+                    audio_filenames.append(item_path)
 
+        return audio_filenames
+
+    def __get_annotations_filenames(self):
         annotations_filenames = []
         for item in os.listdir(self.annotations_path):
-            if not item.endswith(".jams"):
-                continue
-            item_path = os.path.join(self.annotations_path, item)
-            if os.path.isfile(item_path):
-                annotations_filenames.append(item_path)
+            if item.endswith(".jams"):
+                item_path = os.path.join(self.annotations_path, item)
+                if os.path.isfile(item_path):
+                    annotations_filenames.append(item_path)
+
+        return annotations_filenames
+
+    def generate(self):
+        audio_filenames = self.__get_audio_filenames()
+        annotations_filenames = self.__get_annotations_filenames()
 
         if len(audio_filenames) != len(annotations_filenames):
             print("Audio files and annotations files quantity mismatch, aborted")
