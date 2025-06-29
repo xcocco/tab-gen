@@ -19,7 +19,7 @@ class SpecAnnGenerator:
                 continue
             item_path = os.path.join(self.audio_path, item)
             if os.path.isfile(item_path):
-                audio_filenames.append(item)
+                audio_filenames.append(item_path)
 
         annotations_filenames = []
         for item in os.listdir(self.annotations_path):
@@ -27,7 +27,7 @@ class SpecAnnGenerator:
                 continue
             item_path = os.path.join(self.annotations_path, item)
             if os.path.isfile(item_path):
-                annotations_filenames.append(item)
+                annotations_filenames.append(item_path)
 
         if len(audio_filenames) != len(annotations_filenames):
             print("Audio files and annotations files quantity mismatch, aborted")
@@ -37,7 +37,7 @@ class SpecAnnGenerator:
         for i in range(len(audio_filenames)):
             audio_filename = audio_filenames[i]
             annotations_filename = annotations_filenames[i]
-
+            print(audio_filename)
             y, sr = librosa.load(audio_filename)
             spectrogram = librosa.feature.melspectrogram(
                 y=y,
@@ -45,14 +45,17 @@ class SpecAnnGenerator:
                 n_fft=2048,
                 hop_length=512
             )
+            spectrogram = spectrogram.T
             times = librosa.frames_to_time(
                 range(len(spectrogram)),
                 sr=sr,
                 hop_length=512
             )
 
-
-            annotations = jams.load(annotations_filename)
+            annotations_file = jams.load(annotations_filename)
+            for anno in annotations_file.annotations['note_midi']:
+                label = anno.to_samples(times)
+                print(label)
 
 
 
