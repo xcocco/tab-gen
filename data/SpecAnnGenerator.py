@@ -1,5 +1,6 @@
 import os
 
+import keras.utils
 import librosa
 import librosa.feature
 import jams
@@ -61,13 +62,17 @@ class SpecAnnGenerator:
                 for j in range(len(notes_per_string)):
                     note = notes_per_string[j]
                     if not note:
-                        notes_per_string_flat[j] = -1
+                        notes_per_string_flat[j] = 0
                     else:
-                        notes_per_string_flat[j] = int(round(note[0]) - self.strings_pitches[string_index])
+                        notes_per_string_flat[j] = int(round(note[0]) - self.strings_pitches[string_index] + 1)
+                        if notes_per_string_flat[j] < 0 or notes_per_string_flat[j] > self.num_classes - 1:
+                            notes_per_string_flat[j] = 0
                 labels[string_index, :] = notes_per_string_flat
 
             # swap axes to get 6 columns (one column per string) and as many rows as frames in the audio
             labels = labels.T
+            labels = keras.utils.to_categorical(labels, self.num_classes)
+
             output_path = 'spec_ann'
             audio_filename = os.path.basename(audio_filename)
             np.savez(
@@ -78,6 +83,7 @@ class SpecAnnGenerator:
 
     def __preprocess_data(self, data):
         # apply some preprocess to data
+        data = data.astype(float)
         data = librosa.util.normalize(data)
         data = librosa.feature.melspectrogram(
             y=data,
