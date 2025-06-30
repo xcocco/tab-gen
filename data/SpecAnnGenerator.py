@@ -74,9 +74,9 @@ class SpecAnnGenerator:
             labels = keras.utils.to_categorical(labels, self.num_classes)
 
             output_path = 'spec_ann'
-            audio_filename = os.path.basename(audio_filename)
+
             np.savez(
-                os.path.join(output_path, str(audio_filename).replace('.wav', '.npz')),
+                os.path.join(output_path, str(os.path.basename(annotations_filename)).replace(".jams", ".npz")),
                 spectrogram=data,
                 labels=labels,
             )
