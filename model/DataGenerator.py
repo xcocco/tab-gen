@@ -21,6 +21,7 @@ class DataGenerator(keras.utils.PyDataset):
         self.con_win_size = con_win_size
         self.shuffle = shuffle
         self.half_win = con_win_size // 2
+        self.indexes = None
 
         # init empty lists for spectrograms and labels
         self.spectrograms = []
@@ -49,7 +50,16 @@ class DataGenerator(keras.utils.PyDataset):
         return math.ceil(data_size / self.batch_size)
 
     def __getitem__(self, idx):
-        
+        indexes = self.indexes[idx * self.batch_size : (idx + 1) * self.batch_size]
+
+        X, y = self.__data_generation(indexes)
+        return X, y
+
+    def __data_generation(self, indexes):
+        X = np.empty((self.batch_size, 128, self.con_win_size, 1))
+        y = np.empty((self.batch_size, 6, 21))
+
+
 
     def on_epoch_end(self):
         # update after each epoch
