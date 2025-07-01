@@ -83,7 +83,7 @@ class TabCNN:
         self.training_generator = DataGenerator(self.partition['training'], 
                                                 data_path=self.data_path,
                                                 batch_size=self.batch_size, 
-                                                shuffle=False,
+                                                shuffle=True,
                                                 #spec_repr=self.spec_repr,
                                                 con_win_size=self.con_win_size)
         
