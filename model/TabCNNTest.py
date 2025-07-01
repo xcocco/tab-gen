@@ -23,7 +23,7 @@ class TabCNN:
                  epochs=8,
                  con_win_size = 9,
                  spec_repr="c",
-                 data_path="data/spec_ann/",
+                 data_path="../data/spec_ann/",
                  id_file="id.csv",
                  save_path="saved/"):
         
@@ -147,7 +147,7 @@ class TabCNN:
                     )
         
     def save_weights(self):
-        self.model.save_weights(self.split_folder + "weights.h5")
+        self.model.save_weights(self.split_folder + "weights.weights.h5")
         
     def test(self):
         self.validation_generator = DataGenerator(self.partition['validation'],
