@@ -59,7 +59,15 @@ class DataGenerator(keras.utils.PyDataset):
         X = np.empty((self.batch_size, 128, self.con_win_size, 1))
         y = np.empty((self.batch_size, 6, 21))
 
+    def __get_relative_index(self, index):
+        cumulative_size = 0
+        for i, spectrogram in enumerate(self.spectrograms):
+            spectrogram_size = len(spectrogram) - (self.half_win * 2)
+            cumulative_size += spectrogram_size
+            if index < cumulative_size:
+                return i, index - (cumulative_size - spectrogram_size)
 
+        return None
 
     def on_epoch_end(self):
         # update after each epoch
