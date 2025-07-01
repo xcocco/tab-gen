@@ -23,6 +23,10 @@ class DataGenerator(keras.utils.PyDataset):
         self.half_win = con_win_size // 2
         self.indexes = None
 
+        # TODO make shape dynamic, pass from constructor
+        self.X_shape = (self.batch_size, 128, self.con_win_size, 1)
+        self.y_shape = (self.batch_size, 6, 21)
+
         # init empty lists for spectrograms and labels
         self.spectrograms = []
         self.labels = []
@@ -56,8 +60,18 @@ class DataGenerator(keras.utils.PyDataset):
         return X, y
 
     def __data_generation(self, indexes):
-        X = np.empty((self.batch_size, 128, self.con_win_size, 1))
-        y = np.empty((self.batch_size, 6, 21))
+        X = np.empty(self.X_shape)
+        y = np.empty(self.y_shape)
+
+        for i, abs_idx in enumerate(indexes):
+            spec_idx, rel_idx = self.__get_relative_index(abs_idx)
+            spectrogram = self.spectrograms[spec_idx]
+            sample_x = spectrogram[rel_idx : rel_idx + self.con_win_size]
+
+            X[i,] = np.expand_dims(np.swapaxes(sample_x, 0, 1), -1)
+            y[i,] = self.labels[spec_idx][rel_idx]
+
+        return X, y
 
     def __get_relative_index(self, index):
         cumulative_size = 0
@@ -84,5 +98,5 @@ class DataGenerator(keras.utils.PyDataset):
             data_size += len(item) - (self.half_win * 2)
         return data_size
 
-dio = DataGenerator([0,1,2,3,4,5], con_win_size=9)
+dio = DataGenerator([0,1,2,3,4], con_win_size=9)
 print(dio._calculate_dataset_length())
