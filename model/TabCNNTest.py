@@ -23,9 +23,9 @@ class TabCNN:
                  epochs=8,
                  con_win_size = 9,
                  spec_repr="c",
-                 data_path="../data/spec_ann/",
+                 data_path="data/spec_ann/",
                  id_file="id.csv",
-                 save_path="./model/saved/"):   
+                 save_path="model/saved/"):
         
         self.batch_size = batch_size
         self.epochs = epochs
