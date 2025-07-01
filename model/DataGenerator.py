@@ -34,6 +34,8 @@ class DataGenerator(keras.utils.PyDataset):
         # init data info
         self.__load_data()
 
+        self.on_epoch_end()
+
     def __load_data(self):
         listdir = os.listdir(self.data_path)
         listdir.sort()
@@ -98,5 +100,5 @@ class DataGenerator(keras.utils.PyDataset):
             data_size += len(item) - (self.half_win * 2)
         return data_size
 
-dio = DataGenerator([0,1,2,3,4], con_win_size=9)
-print(dio._calculate_dataset_length())
+#dio = DataGenerator([0,1,2,3,4], con_win_size=9)
+#print(dio._calculate_dataset_length())
