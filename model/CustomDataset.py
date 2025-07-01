@@ -3,6 +3,7 @@ import os
 
 import keras.utils
 import numpy as np
+from tensorflow.python.ops.gen_dataset_ops import concatenate_dataset
 
 
 class CustomDataset(keras.utils.PyDataset):
@@ -23,9 +24,14 @@ class CustomDataset(keras.utils.PyDataset):
         self.half_win = con_win_size // 2
         self.shuffle = shuffle
 
+        self.X_dim = (self.batch_size, 128, self.con_win_size, 1)
+        self.y_dim = (self.batch_size, 6, 21)
+
         self.spectrograms = []
         self.labels = []
         self._load_data()
+
+        self.on_epoch_end()
 
     def _load_data(self):
         listdir = os.listdir(self.data_path)
@@ -38,8 +44,10 @@ class CustomDataset(keras.utils.PyDataset):
                 npz = np.load(os.path.join(self.data_path, filename))
                 spectrogram = npz['spectrogram']
                 label = npz['labels']
+                spectrogram = np.pad(spectrogram, [])
                 self.spectrograms.append(spectrogram)
                 self.labels.append(label)
+        self.concatenated = np.concatenate(self.spectrograms, axis=0)
 
     def __len__(self):
         data_size = 0
@@ -48,7 +56,20 @@ class CustomDataset(keras.utils.PyDataset):
         return math.ceil(data_size / self.batch_size)
 
     def __getitem__(self, idx):
-        low = idx * self.batch_size
-        high = min(low + self.batch_size, len(self.filenames_list))
-        batch_x = self.filenames_list[low:high]
-        batch_y = self.labels_list[low:high]
+        indexes = self.indexes[idx * self.batch_size : (idx + 1) * self.batch_size]
+        X = np.empty(self.X_dim)
+        y = np.empty(self.y_dim)
+        counter = 0
+        for index in indexes:
+            window = self.concatenated[index : index + self.con_win_size]
+            X[counter,] = np.expand_dims(np.swapaxes(window, 0, 1), -1)
+            y[counter,] = self.labels[index]
+            counter += 1
+
+    def on_epoch_end(self):
+        self.indexes = np.arange(len(self.concatenated))
+        if self.shuffle:
+            np.random.shuffle(self.indexes)
+
+dio = CustomDataset([0])
+print(dio.concatenated.shape)
