@@ -23,16 +23,19 @@ class DataGenerator(keras.utils.PyDataset):
         self.half_win = con_win_size // 2
         self.indexes = None
 
-        # TODO make shape dynamic, pass from constructor
-        self.X_shape = (self.batch_size, 128, self.con_win_size, 1)
-        self.y_shape = (self.batch_size, 6, 21)
-
         # init empty lists for spectrograms and labels
         self.spectrograms = []
         self.labels = []
 
         # init data info
         self.__load_data()
+
+        if self.batch_size <= 0:
+            for item in self.spectrograms:
+                self.batch_size += len(item)
+        # TODO make shape dynamic, pass from constructor
+        self.X_shape = (self.batch_size, 128, self.con_win_size, 1)
+        self.y_shape = (self.batch_size, 6, 21)
 
         self.on_epoch_end()
 

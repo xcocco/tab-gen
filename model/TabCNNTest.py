@@ -152,7 +152,7 @@ class TabCNN:
     def test(self):
         self.validation_generator = DataGenerator(self.partition['validation'],
                                                   data_path=self.data_path,
-                                                  batch_size=len(self.partition['validation']),
+                                                  batch_size=-1,
                                                   shuffle=False,
                                                   # spec_repr=self.spec_repr,
                                                   con_win_size=self.con_win_size)
