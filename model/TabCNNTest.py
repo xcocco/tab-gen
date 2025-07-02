@@ -181,7 +181,10 @@ class TabCNN:
                 output[key] = vals + [mean, std]
         output["data"] =  self.metrics["data"]
         df = pd.DataFrame.from_dict(output)
-        df.to_csv(self.save_folder + "results.csv") 
+        df.to_csv(self.save_folder + "results.csv")
+
+    def save_model(self):
+        self.model.save(self.save_folder + "final_model")
         
 ##################################
 ########### EXPERIMENT ###########
@@ -208,3 +211,4 @@ if __name__ == '__main__':
         tabcnn.evaluate()
     print("saving results...")
     tabcnn.save_results_csv()
+    tabcnn.save_model()
