@@ -190,7 +190,7 @@ class TabCNN:
 ########### EXPERIMENT ###########
 ##################################
 if __name__ == '__main__':
-    tabcnn = TabCNN(batch_size=1024)
+    tabcnn = TabCNN()
 
     print("logging model...")
     tabcnn.build_model()

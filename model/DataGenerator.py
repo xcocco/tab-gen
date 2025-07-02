@@ -47,7 +47,6 @@ class DataGenerator(keras.utils.PyDataset):
             end = start + 60
             files_to_read = listdir[start:end]
             for filename in files_to_read:
-                print(filename)
                 npz = np.load(os.path.join(self.data_path, filename))
                 spectrogram = npz['spectrogram']
                 label = npz['labels']
