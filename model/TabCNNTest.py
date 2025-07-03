@@ -184,7 +184,7 @@ class TabCNN:
         df.to_csv(self.save_folder + "results.csv")
 
     def save_model(self):
-        self.model.save(self.save_folder + "final_model")
+        self.model.save(self.save_folder + "final_model.keras")
         
 ##################################
 ########### EXPERIMENT ###########
