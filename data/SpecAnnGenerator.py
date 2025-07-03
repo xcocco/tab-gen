@@ -30,6 +30,9 @@ class SpecAnnGenerator:
         self.sr = sr
 
     def generate(self):
+        if not os.path.exists("spec_ann"):
+            os.makedirs("spec_ann")
+
         audio_filenames = _get_filenames_from_path(self.audio_path, ".wav")
         annotations_filenames = _get_filenames_from_path(self.annotations_path, ".jams")
 
